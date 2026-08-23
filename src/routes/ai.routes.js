@@ -15,6 +15,9 @@ router.post(
     "/chat",
     aiController.chatWithAI
 );
-
+router.post(
+    "/bank-chat",
+    aiController.bankChatWithAI
+);
 
 module.exports = router;

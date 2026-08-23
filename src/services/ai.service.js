@@ -23,9 +23,28 @@ const chatWithAI = async (
     const response = await axios.post(
         `${AI_SERVICE_URL}/api/ai/chat`,
         {
-            customerId,
+            customer_id: customerId,
             message,
-            customerProfile,
+            customer_profile: customerProfile || {},
+            products
+        }
+    );
+
+    return response.data;
+};
+
+
+const bankChatWithAI = async (
+    message,
+    customerProfile = {},
+    products = []
+) => {
+
+    const response = await axios.post(
+        `${AI_SERVICE_URL}/api/ai/bank-chat`,
+        {
+            message,
+            customer_profile: customerProfile,
             products
         }
     );
@@ -36,5 +55,6 @@ const chatWithAI = async (
 
 module.exports = {
     getAIStatus,
-    chatWithAI
+    chatWithAI,
+    bankChatWithAI
 };

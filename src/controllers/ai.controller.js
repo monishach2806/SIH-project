@@ -7,9 +7,21 @@ const getAIStatus = async (req, res) => {
 
         const result = await aiService.getAIStatus();
 
+                let cleanResponse = result.response || "";
+
+        cleanResponse = cleanResponse
+            .replace(/^#{1,6}\s*/gm, "")
+            .replace(/\*\*(.*?)\*\*/g, "$1")
+            .replace(/\*(.*?)\*/g, "$1")
+            .replace(/`(.*?)`/g, "$1")
+            .replace(/^[-*]\s+/gm, "• ")
+            .replace(/^---+$/gm, "")
+            .replace(/\n{3,}/g, "\n\n")
+            .trim();
+
         res.status(200).json({
-            success: true,
-            data: result
+            ...result,
+            response: cleanResponse
         });
 
     } catch (error) {
@@ -73,10 +85,7 @@ const chatWithAI = async (req, res) => {
 
     } catch (error) {
 
-        console.error(
-            "AI chat error:",
-            error.message
-        );
+        console.error("AI chat error FULL:", error);
 
         res.status(503).json({
             success: false,
@@ -84,8 +93,43 @@ const chatWithAI = async (req, res) => {
         });
     }
 };
+const bankChatWithAI = async (req, res) => {
 
+    try {
+
+        const {
+            message,
+            customerProfile,
+            products
+        } = req.body;
+
+        if (!message) {
+            return res.status(400).json({
+                success: false,
+                message: "message is required"
+            });
+        }
+
+        const result = await aiService.bankChatWithAI(
+            message,
+            customerProfile || {},
+            products || []
+        );
+
+        res.status(200).json(result);
+
+    } catch (error) {
+
+        console.error("Bank AI chat error FULL:", error);
+
+        res.status(503).json({
+            success: false,
+            message: "Bank AI service unavailable"
+        });
+    }
+};
 module.exports = {
     getAIStatus,
-    chatWithAI
+    chatWithAI,
+    bankChatWithAI
 };
